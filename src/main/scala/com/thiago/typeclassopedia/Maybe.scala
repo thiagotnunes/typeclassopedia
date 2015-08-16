@@ -7,7 +7,6 @@ object Maybe {
     implicitly[Applicative[Maybe]].pure(a)
   }
 
-
   implicit class FunctionalMaybe[A](m: Maybe[A]) {
     def fmap[B](f: (A) => B): Maybe[B] = {
       implicitly[Functor[Maybe]].fmap(m)(f)
@@ -18,16 +17,14 @@ object Maybe {
     }
   }
 
-  implicit def MaybeFunctor: Functor[Maybe] = new Functor[Maybe] {
+  implicit def MaybeApplicative: Applicative[Maybe] = new Applicative[Maybe] {
     override def fmap[A, B](fa: Maybe[A])(f: (A) => B): Maybe[B] = {
       fa match {
         case Just(a) => Just(f(a))
         case Empty() => Empty()
       }
     }
-  }
 
-  implicit def MaybeApplicative: Applicative[Maybe] = new Applicative[Maybe] {
     override def pure[A](a: A): Maybe[A] = {
       if(a != null) {
         Just(a)
