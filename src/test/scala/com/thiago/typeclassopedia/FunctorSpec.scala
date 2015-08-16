@@ -1,10 +1,14 @@
 package com.thiago.typeclassopedia
 
 import org.specs2.mutable.Specification
-import com.thiago.typeclassopedia.Functor._
+import com.thiago.typeclassopedia.Maybe._
 
 class FunctorSpec extends Specification {
-  "maps over sequence" in {
-    SeqFunctor.fmap(Seq(1,2,3,4))(_ + 1) mustEqual Seq(2,3,4,5)
+  "maps over just" in {
+    Just(1).fmap(_ + 1) mustEqual Just(2)
+  }
+
+  "maps over empty" in {
+    Empty().fmap((e: Int) => e + 1) mustEqual Empty()
   }
 }
