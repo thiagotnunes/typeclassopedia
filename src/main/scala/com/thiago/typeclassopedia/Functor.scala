@@ -21,11 +21,11 @@ object Functor {
     }
   }
 
-  implicit def OptionFunctor: Functor[Option] = new Functor[Option] {
-    override def fmap[A, B](fa: Option[A])(f: (A) => B): Option[B] = {
+  implicit def MaybeFunctor: Functor[Maybe] = new Functor[Maybe] {
+    override def fmap[A, B](fa: Maybe[A])(f: (A) => B): Maybe[B] = {
       fa match {
-        case Some(a) => Option(f(a))
-        case None => None
+        case Just(a) => Just(f(a))
+        case Empty() => Empty()
       }
     }
   }

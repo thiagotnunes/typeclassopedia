@@ -6,19 +6,19 @@ trait Applicative[F[_]] {
 }
 
 object Applicative {
-  implicit def OptionApplicative: Applicative[Option] = new Applicative[Option] {
-    override def pure[A](a: A): Option[A] = {
+  implicit def MaybeApplicative: Applicative[Maybe] = new Applicative[Maybe] {
+    override def pure[A](a: A): Maybe[A] = {
       if(a != null) {
-        Some(a)
+        Just(a)
       } else {
-        None
+        Empty()
       }
     }
 
-    override def <*>[A, B](fa: Option[A])(f: Option[(A) => B]): Option[B] = {
+    override def <*>[A, B](fa: Maybe[A])(f: Maybe[(A) => B]): Maybe[B] = {
       (fa, f) match {
-        case (Some(a), Some(fab)) => pure(fab(a))
-        case _ => None
+        case (Just(a), Just(fab)) => pure(fab(a))
+        case _ => Empty()
       }
     }
   }
