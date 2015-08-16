@@ -27,11 +27,11 @@ class MaybeSpec extends Specification {
 
     "<*>" >> {
       "returns empty when first param is not defined" in {
-        Empty().<*>(Just((e: Int) => e + 1)) mustEqual Empty()
+        Empty().ap(Just((e: Int) => e + 1)) mustEqual Empty()
       }
 
       "returns empty when function is not defined" in {
-        Just(1).<*>(Empty[Int => Int]()) mustEqual Empty()
+        Just(1).ap(Empty[Int => Int]()) mustEqual Empty()
       }
 
       "returns just value when first param and function are defined" in {
@@ -43,7 +43,7 @@ class MaybeSpec extends Specification {
           }
         }
 
-        numericValue("1").<*>(numericValue("2").map((s: Int) => (f: Int) => f + s)) mustEqual Just(3)
+        numericValue("1").ap(numericValue("2").map((s: Int) => (f: Int) => f + s)) mustEqual Just(3)
       }
     }
   }

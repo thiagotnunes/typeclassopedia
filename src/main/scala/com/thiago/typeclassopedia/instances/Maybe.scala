@@ -10,7 +10,7 @@ object Maybe {
   }
 
   def `return`[A](a: A): Maybe[A] = {
-    pure(a)
+    implicitly[Monad[Maybe]].`return`(a)
   }
 
   implicit class FunctionalMaybe[A](m: Maybe[A]) {
@@ -18,7 +18,7 @@ object Maybe {
       implicitly[Functor[Maybe]].map(m)(f)
     }
 
-    def <*>[B](f: Maybe[(A) => B]): Maybe[B] = {
+    def ap[B](f: Maybe[(A) => B]): Maybe[B] = {
       implicitly[Applicative[Maybe]].ap(m)(f)
     }
 
