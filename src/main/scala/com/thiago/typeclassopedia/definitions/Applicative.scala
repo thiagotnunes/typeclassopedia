@@ -1,6 +1,6 @@
 package com.thiago.typeclassopedia.definitions
 
-trait Applicative[F[_]] extends Functor[F] {
-  def pure[A](a: A): F[A]
-  def ap[A, B](fa: F[A])(f: F[(A) => B]): F[B]
+trait Applicative[T[_]] extends Functor[T] {
+  def pure[A](a: A): T[A]
+  def ap[A, B](fa: T[A])(f: T[(A) => B]): T[B]
 }

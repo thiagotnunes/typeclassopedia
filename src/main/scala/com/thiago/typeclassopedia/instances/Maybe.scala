@@ -1,6 +1,6 @@
 package com.thiago.typeclassopedia.instances
 
-import com.thiago.typeclassopedia.definitions.{Monad, Functor, Applicative}
+import com.thiago.typeclassopedia.definitions._
 
 sealed trait Maybe[A]
 
