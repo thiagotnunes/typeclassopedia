@@ -7,18 +7,26 @@ object Maybe {
     implicitly[Applicative[Maybe]].pure(a)
   }
 
+  def `return`[A](a: A): Maybe[A] = {
+    pure(a)
+  }
+
   implicit class FunctionalMaybe[A](m: Maybe[A]) {
-    def fmap[B](f: (A) => B): Maybe[B] = {
-      implicitly[Functor[Maybe]].fmap(m)(f)
+    def map[B](f: (A) => B): Maybe[B] = {
+      implicitly[Functor[Maybe]].map(m)(f)
     }
 
     def <*>[B](f: Maybe[(A) => B]): Maybe[B] = {
       implicitly[Applicative[Maybe]].<*>(m)(f)
     }
+
+    def flatMap[B](f: (A) => Maybe[B]): Maybe[B] = {
+      implicitly[Monad[Maybe]].flatMap(m)(f)
+    }
   }
 
-  implicit def MaybeApplicative: Applicative[Maybe] = new Applicative[Maybe] {
-    override def fmap[A, B](fa: Maybe[A])(f: (A) => B): Maybe[B] = {
+  implicit def MaybeMonad: Monad[Maybe] = new Monad[Maybe] {
+    override def map[A, B](fa: Maybe[A])(f: (A) => B): Maybe[B] = {
       fa match {
         case Just(a) => Just(f(a))
         case Empty() => Empty()
@@ -37,6 +45,17 @@ object Maybe {
       (fa, f) match {
         case (Just(a), Just(fab)) => pure(fab(a))
         case _ => Empty()
+      }
+    }
+
+    override def `return`[A](a: A): Maybe[A] = {
+      pure(a)
+    }
+
+    override def flatMap[A, B](fa: Maybe[A])(f: (A) => Maybe[B]): Maybe[B] = {
+      fa match {
+        case Just(a) => f(a)
+        case Empty() => Empty()
       }
     }
   }
