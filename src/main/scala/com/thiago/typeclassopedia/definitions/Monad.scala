@@ -1,4 +1,4 @@
-package com.thiago.typeclassopedia
+package com.thiago.typeclassopedia.definitions
 
 trait Monad[F[_]] extends Applicative[F] {
   def `return`[A](a: A): F[A]

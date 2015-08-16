@@ -1,4 +1,6 @@
-package com.thiago.typeclassopedia
+package com.thiago.typeclassopedia.instances
+
+import com.thiago.typeclassopedia.definitions.{Monad, Functor, Applicative}
 
 sealed trait Maybe[A]
 
@@ -17,7 +19,7 @@ object Maybe {
     }
 
     def <*>[B](f: Maybe[(A) => B]): Maybe[B] = {
-      implicitly[Applicative[Maybe]].<*>(m)(f)
+      implicitly[Applicative[Maybe]].ap(m)(f)
     }
 
     def flatMap[B](f: (A) => Maybe[B]): Maybe[B] = {
@@ -41,7 +43,7 @@ object Maybe {
       }
     }
 
-    override def <*>[A, B](fa: Maybe[A])(f: Maybe[(A) => B]): Maybe[B] = {
+    override def ap[A, B](fa: Maybe[A])(f: Maybe[(A) => B]): Maybe[B] = {
       (fa, f) match {
         case (Just(a), Just(fab)) => pure(fab(a))
         case _ => Empty()
@@ -59,7 +61,7 @@ object Maybe {
       }
     }
   }
-}
 
-case class Just[A](a: A) extends Maybe[A]
-case class Empty[A]() extends Maybe[A]
+  case class Just[A](a: A) extends Maybe[A]
+  case class Empty[A]() extends Maybe[A]
+}
