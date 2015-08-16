@@ -35,15 +35,7 @@ class MaybeSpec extends Specification {
       }
 
       "returns just value when first param and function are defined" in {
-        def numericValue(str: String): Maybe[Int] = {
-          try {
-            Just(str.toInt)
-          } catch {
-            case _: NumberFormatException => Empty()
-          }
-        }
-
-        numericValue("1").ap(numericValue("2").map((s: Int) => (f: Int) => f + s)) mustEqual Just(3)
+        Just(1).ap(Just((e: Int) => e + 1)) mustEqual Just(2)
       }
     }
   }
