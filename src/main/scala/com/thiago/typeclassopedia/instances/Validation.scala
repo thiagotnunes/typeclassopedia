@@ -15,7 +15,7 @@ sealed trait Validation[+E, +A] {
     implicitly[Monad[({type lambda[A] = Validation[EE, A]})#lambda]].bind(this)(f)
   }
 
-  def append[EE >: E, AA >: A](a2: Validation[EE, AA])(implicit errorSemiGroup: SemiGroup[EE], successMonoid: Monoid[AA]): Validation[EE, AA] = {
+  def append[EE >: E : SemiGroup, AA >: A : Monoid](a2: Validation[EE, AA]): Validation[EE, AA] = {
     implicitly[Monoid[Validation[EE, AA]]].append(this, a2)
   }
 }
@@ -29,20 +29,20 @@ object Validation {
     implicitly[Monad[({type lambda[A] = Validation[E, A]})#lambda]].`return`(a)
   }
 
-  def zero[E, A](implicit errorSemiGroup: SemiGroup[E], successMonoid: Monoid[A]): Validation[E, A] = {
+  def zero[E : SemiGroup, A : Monoid]: Validation[E, A] = {
     implicitly[Monoid[Validation[E, A]]].zero
   }
 
-  implicit def ValidationMonoid[E, A](implicit errorSemiGroup: SemiGroup[E], successMonoid: Monoid[A]): Monoid[Validation[E, A]] =
+  implicit def ValidationMonoid[E : SemiGroup, A : Monoid]: Monoid[Validation[E, A]] =
     new Monoid[Validation[E, A]] {
-      override def zero: Validation[E, A] = Success(successMonoid.zero)
+      override def zero: Validation[E, A] = Success(implicitly[Monoid[A]].zero)
 
       override def append(a1: Validation[E, A], a2: Validation[E, A]): Validation[E, A] = {
         (a1, a2) match {
-          case (Success(v1), Success(v2)) => Success(successMonoid.append(v1, v2))
+          case (Success(v1), Success(v2)) => Success(implicitly[Monoid[A]].append(v1, v2))
           case (failure @ Failure(_), Success(_)) => failure
           case (Success(_), failure @ Failure(_)) => failure
-          case (failure1 @ Failure(v1), failure2 @ Failure(v2)) => Failure(errorSemiGroup.append(v1, v2))
+          case (failure1 @ Failure(v1), failure2 @ Failure(v2)) => Failure(implicitly[SemiGroup[E]].append(v1, v2))
         }
       }
     }

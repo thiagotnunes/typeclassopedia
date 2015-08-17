@@ -29,18 +29,18 @@ object Maybe {
     implicitly[Monad[Maybe]].`return`(a)
   }
 
-  def zero[A](implicit ev: Monoid[A]): Maybe[A] = {
+  def zero[A : Monoid]: Maybe[A] = {
     implicitly[Monoid[Maybe[A]]].zero
   }
 
-  implicit def MaybeMonoid[A](implicit ev: Monoid[A]): Monoid[Maybe[A]] = new Monoid[Maybe[A]] {
+  implicit def MaybeMonoid[A : Monoid]: Monoid[Maybe[A]] = new Monoid[Maybe[A]] {
     override def zero: Maybe[A] = {
       Empty()
     }
 
     override def append(a1: Maybe[A], a2: Maybe[A]): Maybe[A] = {
       (a1, a2) match {
-        case (Just(v1), Just(v2)) => Just(ev.append(v1, v2))
+        case (Just(v1), Just(v2)) => Just(implicitly[Monoid[A]].append(v1, v2))
         case (Just(_), Empty()) => a1
         case (Empty(), Just(_)) => a2
         case (Empty(), Empty()) => Empty()
