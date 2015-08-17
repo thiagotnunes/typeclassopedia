@@ -29,11 +29,11 @@ object Maybe {
     implicitly[Monad[Maybe]].`return`(a)
   }
 
-  def zero[A : Monoid]: Maybe[A] = {
+  def zero[A: Monoid]: Maybe[A] = {
     implicitly[Monoid[Maybe[A]]].zero
   }
 
-  implicit def MaybeMonoid[A : Monoid]: Monoid[Maybe[A]] = new Monoid[Maybe[A]] {
+  implicit def MaybeMonoid[A: Monoid]: Monoid[Maybe[A]] = new Monoid[Maybe[A]] {
     override def zero: Maybe[A] = {
       Empty
     }
@@ -57,7 +57,7 @@ object Maybe {
     }
 
     override def pure[A](a: A): Maybe[A] = {
-      if(a != null) {
+      if (a != null) {
         Just(a)
       } else {
         Empty
@@ -84,5 +84,7 @@ object Maybe {
   }
 
   case class Just[A](a: A) extends Maybe[A]
+
   case object Empty extends Maybe[Nothing]
+
 }

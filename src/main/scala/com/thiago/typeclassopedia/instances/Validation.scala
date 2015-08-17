@@ -15,7 +15,7 @@ sealed trait Validation[+E, +A] {
     implicitly[Monad[({type lambda[A] = Validation[EE, A]})#lambda]].bind(this)(f)
   }
 
-  def append[EE >: E : SemiGroup, AA >: A : Monoid](a2: Validation[EE, AA]): Validation[EE, AA] = {
+  def append[EE >: E : Semigroup, AA >: A : Monoid](a2: Validation[EE, AA]): Validation[EE, AA] = {
     implicitly[Monoid[Validation[EE, AA]]].append(this, a2)
   }
 }
@@ -29,11 +29,11 @@ object Validation {
     implicitly[Monad[({type lambda[A] = Validation[E, A]})#lambda]].`return`(a)
   }
 
-  def zero[E : SemiGroup, A : Monoid]: Validation[E, A] = {
+  def zero[E : Semigroup, A : Monoid]: Validation[E, A] = {
     implicitly[Monoid[Validation[E, A]]].zero
   }
 
-  implicit def ValidationMonoid[E : SemiGroup, A : Monoid]: Monoid[Validation[E, A]] =
+  implicit def ValidationMonoid[E : Semigroup, A : Monoid]: Monoid[Validation[E, A]] =
     new Monoid[Validation[E, A]] {
       override def zero: Validation[E, A] = Success(implicitly[Monoid[A]].zero)
 
@@ -42,7 +42,7 @@ object Validation {
           case (Success(v1), Success(v2)) => Success(implicitly[Monoid[A]].append(v1, v2))
           case (failure @ Failure(_), Success(_)) => failure
           case (Success(_), failure @ Failure(_)) => failure
-          case (failure1 @ Failure(v1), failure2 @ Failure(v2)) => Failure(implicitly[SemiGroup[E]].append(v1, v2))
+          case (failure1 @ Failure(v1), failure2 @ Failure(v2)) => Failure(implicitly[Semigroup[E]].append(v1, v2))
         }
       }
     }
@@ -51,7 +51,7 @@ object Validation {
     new Monad[({type lambda[A] = Validation[E, A]})#lambda] {
       override def fmap[A, B](fa: Validation[E, A])(f: (A) => B): Validation[E, B] = {
         fa match {
-          case failure @ Failure(_) => failure.asInstanceOf[Failure[E, B]]
+          case Failure(error) => Failure(error)
           case Success(a) => Success(f(a))
         }
       }
@@ -61,8 +61,8 @@ object Validation {
       override def ap[A, B](fa: Validation[E, A])(f: Validation[E, (A) => B]): Validation[E, B] = {
         (fa, f) match {
           case (Success(a), Success(fab)) => pure(fab(a))
-          case (Success(_), failure @ Failure(error)) => failure.asInstanceOf[Validation[E, B]]
-          case (failure @ Failure(error), _) => failure.asInstanceOf[Validation[E, B]]
+          case (Success(_), Failure(error)) => Failure(error)
+          case (Failure(error), _) => Failure(error)
         }
       }
 
@@ -71,7 +71,7 @@ object Validation {
       override def bind[A, B](fa: Validation[E, A])(f: (A) => Validation[E, B]): Validation[E, B] = {
         fa match {
           case Success(a) => f(a)
-          case failure @ Failure(_) => failure.asInstanceOf[Validation[E, B]]
+          case Failure(error) => Failure(error)
         }
       }
     }

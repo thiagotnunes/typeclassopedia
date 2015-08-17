@@ -1,5 +1,5 @@
 package com.thiago.typeclassopedia.definitions
 
-trait Monoid[T] extends SemiGroup[T] {
+trait Monoid[T] extends Semigroup[T] {
   def zero: T
 }
