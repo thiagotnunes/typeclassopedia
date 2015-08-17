@@ -2,7 +2,7 @@ package com.thiago.typeclassopedia.instances
 
 import com.thiago.typeclassopedia.definitions._
 
-sealed trait Maybe[A] {
+sealed trait Maybe[+A] {
   def map[B](f: (A) => B): Maybe[B] = {
     implicitly[Functor[Maybe]].fmap(this)(f)
   }
@@ -15,8 +15,8 @@ sealed trait Maybe[A] {
     implicitly[Monad[Maybe]].bind(this)(f)
   }
 
-  def append(a2: Maybe[A])(implicit ev: Monoid[A]): Maybe[A] = {
-    implicitly[Monoid[Maybe[A]]].append(this, a2)
+  def append[AA >: A : Monoid](a2: Maybe[AA]): Maybe[AA] = {
+    implicitly[Monoid[Maybe[AA]]].append(this, a2)
   }
 }
 
@@ -35,15 +35,15 @@ object Maybe {
 
   implicit def MaybeMonoid[A : Monoid]: Monoid[Maybe[A]] = new Monoid[Maybe[A]] {
     override def zero: Maybe[A] = {
-      Empty()
+      Empty
     }
 
     override def append(a1: Maybe[A], a2: Maybe[A]): Maybe[A] = {
       (a1, a2) match {
         case (Just(v1), Just(v2)) => Just(implicitly[Monoid[A]].append(v1, v2))
-        case (Just(_), Empty()) => a1
-        case (Empty(), Just(_)) => a2
-        case (Empty(), Empty()) => Empty()
+        case (Just(_), Empty) => a1
+        case (Empty, Just(_)) => a2
+        case (Empty, Empty) => Empty
       }
     }
   }
@@ -52,7 +52,7 @@ object Maybe {
     override def fmap[A, B](fa: Maybe[A])(f: (A) => B): Maybe[B] = {
       fa match {
         case Just(a) => Just(f(a))
-        case Empty() => Empty()
+        case Empty => Empty
       }
     }
 
@@ -60,14 +60,14 @@ object Maybe {
       if(a != null) {
         Just(a)
       } else {
-        Empty()
+        Empty
       }
     }
 
     override def ap[A, B](fa: Maybe[A])(f: Maybe[(A) => B]): Maybe[B] = {
       (fa, f) match {
         case (Just(a), Just(fab)) => pure(fab(a))
-        case _ => Empty()
+        case _ => Empty
       }
     }
 
@@ -78,11 +78,11 @@ object Maybe {
     override def bind[A, B](fa: Maybe[A])(f: (A) => Maybe[B]): Maybe[B] = {
       fa match {
         case Just(a) => f(a)
-        case Empty() => Empty()
+        case Empty => Empty
       }
     }
   }
 
   case class Just[A](a: A) extends Maybe[A]
-  case class Empty[A]() extends Maybe[A]
+  case object Empty extends Maybe[Nothing]
 }

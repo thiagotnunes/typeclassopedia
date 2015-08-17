@@ -11,7 +11,7 @@ class MaybeSpec extends Specification {
     }
 
     "maps over empty" in {
-      Empty().map((e: Int) => e + 1) ==== Empty()
+      Empty.map(e => e) ==== Empty
     }
   }
   
@@ -22,17 +22,17 @@ class MaybeSpec extends Specification {
       }
 
       "returns maybe from null value" in {
-        Maybe.pure(null) ==== Empty()
+        Maybe.pure(null) ==== Empty
       }
     }
 
     "ap" >> {
       "returns empty when first param is not defined" in {
-        Empty().ap(Just((e: Int) => e + 1)) ==== Empty()
+        Empty.ap(Just((e: Int) => e + 1)) ==== Empty
       }
 
       "returns empty when function is not defined" in {
-        Just(1).ap(Empty[Int => Int]()) ==== Empty()
+        Just(1).ap(Empty) ==== Empty
       }
 
       "returns just value when first param and function are defined" in {
@@ -48,15 +48,15 @@ class MaybeSpec extends Specification {
       }
 
       "returns first param when first is defined but second is not" in {
-        Just(1).append(Empty()) ==== Just(1)
+        Just(1).append(Empty) ==== Just(1)
       }
 
       "returns second param when second is defined but first is not" in {
-        Empty[Int]().append(Just(1)) ==== Just(1)
+        Empty.append(Just(1)) ==== Just(1)
       }
 
       "returns empty when both are not defined" in {
-        Empty[Int]().append(Empty()) ==== Empty()
+        Empty.append[Int](Empty) ==== Empty
       }
     }
   }
@@ -64,7 +64,7 @@ class MaybeSpec extends Specification {
   "monoid" >> {
     "zero" >> {
       "returns empty value" in {
-        Maybe.zero[Int] ==== Empty()
+        Maybe.zero[Int] ==== Empty
       }
     }
   }
@@ -76,17 +76,17 @@ class MaybeSpec extends Specification {
       }
 
       "returns maybe from null value" in {
-        Maybe.`return`(null) ==== Empty()
+        Maybe.`return`(null) ==== Empty
       }
     }
 
     "flatMap" >> {
       "returns empty when first param is not defined" in {
-        Empty().flatMap((e: Int) => Just(e + 1)) ==== Empty()
+        Empty.flatMap((e: Int) => Just(e + 1)) ==== Empty
       }
 
       "returns empty when function returns empty" in {
-        Just(1).flatMap((e: Int) => Empty[Int]()) ==== Empty()
+        Just(1).flatMap((e: Int) => Empty) ==== Empty
       }
 
       "returns just value when first param is defined and function returns defined value" in {
