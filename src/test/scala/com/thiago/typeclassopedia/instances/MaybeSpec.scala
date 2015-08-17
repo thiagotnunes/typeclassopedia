@@ -1,7 +1,7 @@
 package com.thiago.typeclassopedia.instances
 
-import com.thiago.typeclassopedia.definitions.SemiGroup
 import com.thiago.typeclassopedia.instances.Maybe._
+import com.thiago.typeclassopedia.instances.IntExtensions._
 import org.specs2.mutable.Specification
 
 class MaybeSpec extends Specification {
@@ -37,6 +37,34 @@ class MaybeSpec extends Specification {
 
       "returns just value when first param and function are defined" in {
         Just(1).ap(Just((e: Int) => e + 1)) ==== Just(2)
+      }
+    }
+  }
+
+  "semigroup" >> {
+    "append" >> {
+      "returns just applied to append of inner values when both params are defined" in {
+        Just(1).append(Just(2)) ==== Just(3)
+      }
+
+      "returns first param when first is defined but second is not" in {
+        Just(1).append(Empty()) ==== Just(1)
+      }
+
+      "returns second param when second is defined but first is not" in {
+        Empty[Int]().append(Just(1)) ==== Just(1)
+      }
+
+      "returns empty when both are not defined" in {
+        Empty[Int]().append(Empty()) ==== Empty()
+      }
+    }
+  }
+
+  "monoid" >> {
+    "zero" >> {
+      "returns empty value" in {
+        Maybe.zero[Int] ==== Empty()
       }
     }
   }
