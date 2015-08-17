@@ -2,7 +2,19 @@ package com.thiago.typeclassopedia.instances
 
 import com.thiago.typeclassopedia.definitions.{Applicative, Functor, Monad}
 
-sealed trait Validation[+E, +A]
+sealed trait Validation[+E, +A] {
+  def map[EE >: E, B](f: (A) => B): Validation[EE, B] = {
+    implicitly[Functor[({type lambda[A] = Validation[EE, A]})#lambda]].map(this)(f)
+  }
+
+  def ap[EE >: E, B](f: Validation[EE, (A) => B]): Validation[EE, B] = {
+    implicitly[Applicative[({type lambda[A] = Validation[EE, A]})#lambda]].ap(this)(f)
+  }
+
+  def flatMap[EE >: E, B](f: (A) => Validation[EE, B]): Validation[EE, B] = {
+    implicitly[Monad[({type lambda[A] = Validation[EE, A]})#lambda]].flatMap(this)(f)
+  }
+}
 
 object Validation {
 
@@ -12,20 +24,6 @@ object Validation {
 
   def `return`[E, A](a: A): Validation[E, A] = {
     implicitly[Monad[({type lambda[A] = Validation[E, A]})#lambda]].`return`(a)
-  }
-
-  implicit class FunctionalValidation[E, A](m: Validation[E, A]) {
-    def map[B](f: (A) => B): Validation[E, B] = {
-      implicitly[Functor[({type lambda[A] = Validation[E, A]})#lambda]].map(m)(f)
-    }
-
-    def ap[B](f: Validation[E, (A) => B]): Validation[E, B] = {
-      implicitly[Applicative[({type lambda[A] = Validation[E, A]})#lambda]].ap(m)(f)
-    }
-
-    def flatMap[B](f: (A) => Validation[E, B]): Validation[E, B] = {
-      implicitly[Monad[({type lambda[A] = Validation[E, A]})#lambda]].flatMap(m)(f)
-    }
   }
 
   implicit def ValidationMonad[E]: Monad[({type lambda[A] = Validation[E, A]})#lambda] =
