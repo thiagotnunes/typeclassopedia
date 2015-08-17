@@ -1,10 +1,10 @@
 package com.thiago.typeclassopedia.instances
 
-import com.thiago.typeclassopedia.definitions.{Applicative, Functor, Monad}
+import com.thiago.typeclassopedia.definitions._
 
 sealed trait Validation[+E, +A] {
   def map[EE >: E, B](f: (A) => B): Validation[EE, B] = {
-    implicitly[Functor[({type lambda[A] = Validation[EE, A]})#lambda]].map(this)(f)
+    implicitly[Functor[({type lambda[A] = Validation[EE, A]})#lambda]].fmap(this)(f)
   }
 
   def ap[EE >: E, B](f: Validation[EE, (A) => B]): Validation[EE, B] = {
@@ -12,12 +12,15 @@ sealed trait Validation[+E, +A] {
   }
 
   def flatMap[EE >: E, B](f: (A) => Validation[EE, B]): Validation[EE, B] = {
-    implicitly[Monad[({type lambda[A] = Validation[EE, A]})#lambda]].flatMap(this)(f)
+    implicitly[Monad[({type lambda[A] = Validation[EE, A]})#lambda]].bind(this)(f)
+  }
+
+  def append[EE >: E, AA >: A](a2: Validation[EE, AA])(implicit errorSemiGroup: SemiGroup[EE], successMonoid: Monoid[AA]): Validation[EE, AA] = {
+    implicitly[Monoid[Validation[EE, AA]]].append(this, a2)
   }
 }
 
 object Validation {
-
   def pure[E, A](a: A): Validation[E, A] = {
     implicitly[Applicative[({type lambda[A] = Validation[E, A]})#lambda]].pure(a)
   }
@@ -26,9 +29,27 @@ object Validation {
     implicitly[Monad[({type lambda[A] = Validation[E, A]})#lambda]].`return`(a)
   }
 
+  def zero[E, A](implicit errorSemiGroup: SemiGroup[E], successMonoid: Monoid[A]): Validation[E, A] = {
+    implicitly[Monoid[Validation[E, A]]].zero
+  }
+
+  implicit def ValidationMonoid[E, A](implicit errorSemiGroup: SemiGroup[E], successMonoid: Monoid[A]): Monoid[Validation[E, A]] =
+    new Monoid[Validation[E, A]] {
+      override def zero: Validation[E, A] = Success(successMonoid.zero)
+
+      override def append(a1: Validation[E, A], a2: Validation[E, A]): Validation[E, A] = {
+        (a1, a2) match {
+          case (Success(v1), Success(v2)) => Success(successMonoid.append(v1, v2))
+          case (failure @ Failure(_), Success(_)) => failure
+          case (Success(_), failure @ Failure(_)) => failure
+          case (failure1 @ Failure(v1), failure2 @ Failure(v2)) => Failure(errorSemiGroup.append(v1, v2))
+        }
+      }
+    }
+
   implicit def ValidationMonad[E]: Monad[({type lambda[A] = Validation[E, A]})#lambda] =
     new Monad[({type lambda[A] = Validation[E, A]})#lambda] {
-      override def map[A, B](fa: Validation[E, A])(f: (A) => B): Validation[E, B] = {
+      override def fmap[A, B](fa: Validation[E, A])(f: (A) => B): Validation[E, B] = {
         fa match {
           case failure @ Failure(_) => failure.asInstanceOf[Failure[E, B]]
           case Success(a) => Success(f(a))
@@ -47,7 +68,7 @@ object Validation {
 
       override def `return`[A](a: A): Validation[E, A] = pure(a)
 
-      override def flatMap[A, B](fa: Validation[E, A])(f: (A) => Validation[E, B]): Validation[E, B] = {
+      override def bind[A, B](fa: Validation[E, A])(f: (A) => Validation[E, B]): Validation[E, B] = {
         fa match {
           case Success(a) => f(a)
           case failure @ Failure(_) => failure.asInstanceOf[Validation[E, B]]

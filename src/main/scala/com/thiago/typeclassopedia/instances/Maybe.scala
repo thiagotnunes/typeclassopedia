@@ -4,7 +4,7 @@ import com.thiago.typeclassopedia.definitions._
 
 sealed trait Maybe[A] {
   def map[B](f: (A) => B): Maybe[B] = {
-    implicitly[Functor[Maybe]].map(this)(f)
+    implicitly[Functor[Maybe]].fmap(this)(f)
   }
 
   def ap[B](f: Maybe[(A) => B]): Maybe[B] = {
@@ -12,7 +12,7 @@ sealed trait Maybe[A] {
   }
 
   def flatMap[B](f: (A) => Maybe[B]): Maybe[B] = {
-    implicitly[Monad[Maybe]].flatMap(this)(f)
+    implicitly[Monad[Maybe]].bind(this)(f)
   }
 
   def append(a2: Maybe[A])(implicit ev: Monoid[A]): Maybe[A] = {
@@ -49,7 +49,7 @@ object Maybe {
   }
 
   implicit val MaybeMonad: Monad[Maybe] = new Monad[Maybe] {
-    override def map[A, B](fa: Maybe[A])(f: (A) => B): Maybe[B] = {
+    override def fmap[A, B](fa: Maybe[A])(f: (A) => B): Maybe[B] = {
       fa match {
         case Just(a) => Just(f(a))
         case Empty() => Empty()
@@ -75,7 +75,7 @@ object Maybe {
       pure(a)
     }
 
-    override def flatMap[A, B](fa: Maybe[A])(f: (A) => Maybe[B]): Maybe[B] = {
+    override def bind[A, B](fa: Maybe[A])(f: (A) => Maybe[B]): Maybe[B] = {
       fa match {
         case Just(a) => f(a)
         case Empty() => Empty()

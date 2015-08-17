@@ -1,7 +1,8 @@
 package com.thiago.typeclassopedia.instances
 
-import com.thiago.typeclassopedia.instances.Maybe.{Empty, Just}
 import com.thiago.typeclassopedia.instances.Validation.{Failure, Success}
+import com.thiago.typeclassopedia.instances.StringExtensions._
+import com.thiago.typeclassopedia.instances.IntExtensions._
 import org.specs2.mutable.Specification
 
 class ValidationSpec extends Specification {
@@ -33,6 +34,34 @@ class ValidationSpec extends Specification {
 
       "returns success when first param and function are successes" in {
         Success(1).ap(Success((e: Int) => e + 1)) ==== Success(2)
+      }
+    }
+  }
+
+  "semigroup" >> {
+    "append" >> {
+      "returns successes appended when both params are successes" in {
+        Success[String, Int](1).append(Success(2)) ==== Success(3)
+      }
+
+      "returns failure when failure is appended to success" in {
+        Failure("error").append(Success(1)) ==== Failure("error")
+      }
+
+      "returns failure when success is appended to failure" in {
+        Success(1).append(Failure("error")) ==== Failure("error")
+      }
+
+      "returns failures appended when both params are failures" in {
+        Failure[String, Int]("error1").append(Failure("error2")) ==== Failure("error1error2")
+      }
+    }
+  }
+
+  "monoid" >> {
+    "zero" >> {
+      "returns success for zero of param" in {
+        Validation.zero[String, Int] ==== Success(0)
       }
     }
   }
