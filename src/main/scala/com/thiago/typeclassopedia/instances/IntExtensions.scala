@@ -13,7 +13,7 @@ object IntExtensions {
     }
   }
 
-  implicit def IntMonoid: Monoid[Int] = new Monoid[Int] {
+  implicit val IntMonoid: Monoid[Int] = new Monoid[Int] {
     override def zero: Int = 0
 
     override def append(a1: Int, a2: Int): Int = a1 + a2

@@ -13,7 +13,7 @@ object StringExtensions {
     }
   }
 
-  implicit def StringMonoid: Monoid[String] = new Monoid[String] {
+  implicit val StringMonoid: Monoid[String] = new Monoid[String] {
     override def zero: String = ""
 
     override def append(a1: String, a2: String): String = a1 + a2
