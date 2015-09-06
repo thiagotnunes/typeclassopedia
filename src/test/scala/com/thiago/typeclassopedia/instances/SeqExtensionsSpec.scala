@@ -79,4 +79,13 @@ class SeqExtensionsSpec extends Specification {
       }
     }
   }
+
+  "foldable" >> {
+    "foldMap" >> {
+      "folds the sequence" in {
+        case class NonMonoid(value: Int)
+        Seq(NonMonoid(1), NonMonoid(2), NonMonoid(3)).foldMap(_.value) ==== 6
+      }
+    }
+  }
 }

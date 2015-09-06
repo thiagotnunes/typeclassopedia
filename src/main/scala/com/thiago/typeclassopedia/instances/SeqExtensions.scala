@@ -1,6 +1,6 @@
 package com.thiago.typeclassopedia.instances
 
-import com.thiago.typeclassopedia.definitions.{Monad, Monoid}
+import com.thiago.typeclassopedia.definitions._
 
 import scala.annotation.tailrec
 
@@ -15,11 +15,11 @@ object SeqExtensions {
 
   implicit class FunctionalSeq[A](seq: Seq[A]) {
     def fmap[B](f: (A) => B): Seq[B] = {
-      implicitly[Monad[Seq]].fmap(seq)(f)
+      implicitly[Functor[Seq]].fmap(seq)(f)
     }
 
     def ap[B](f: Seq[(A) => B]): Seq[B] = {
-      implicitly[Monad[Seq]].ap(seq)(f)
+      implicitly[Applicative[Seq]].ap(seq)(f)
     }
 
     def bind[B](f: (A) => Seq[B]): Seq[B] = {
@@ -28,6 +28,10 @@ object SeqExtensions {
 
     def append[AA >: A : Monoid](a2: Seq[AA]): Seq[AA] = {
       implicitly[Monoid[Seq[AA]]].append(seq, a2)
+    }
+
+    def foldMap[M](f: (A) => M)(implicit evidence: Monoid[M]): M = {
+      implicitly[Foldable[Seq]].foldMap(seq)(f)
     }
   }
 
@@ -72,6 +76,18 @@ object SeqExtensions {
       }
 
       flatMap(fa, Seq.empty[B])
+    }
+  }
+
+  implicit val SeqFoldable: Foldable[Seq] = new Foldable[Seq] {
+    override def foldMap[A, M](fa: Seq[A])(f: (A) => M)(implicit evidence: Monoid[M]): M = {
+      @tailrec
+      def iter(seq: Seq[A], acc: M): M = seq match {
+        case Seq() => acc
+        case head +: tail => iter(tail, evidence.append(acc, f(head)))
+      }
+
+      iter(fa, evidence.zero)
     }
   }
 }
