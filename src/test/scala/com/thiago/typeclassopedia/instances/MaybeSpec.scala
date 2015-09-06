@@ -14,18 +14,20 @@ class MaybeSpec extends Specification {
       Empty.map(e => e) ==== Empty
     }
   }
-  
-  "applicative" >> {
-    "pure" >> {
+
+  "pointed" >> {
+    "point" >> {
       "returns maybe from non null value" in {
-        Maybe.pure(1) ==== Just(1)
+        Maybe.point(1) ==== Just(1)
       }
 
       "returns maybe from null value" in {
-        Maybe.pure(null) ==== Empty
+        Maybe.point(null) ==== Empty
       }
     }
-
+  }
+  
+  "applicative" >> {
     "ap" >> {
       "returns empty when first param is not defined" in {
         Empty.ap(Just((e: Int) => e + 1)) ==== Empty
@@ -70,16 +72,6 @@ class MaybeSpec extends Specification {
   }
 
   "monad" >> {
-    "`return`" >> {
-      "returns maybe from non null value" in {
-        Maybe.`return`(1) ==== Just(1)
-      }
-
-      "returns maybe from null value" in {
-        Maybe.`return`(null) ==== Empty
-      }
-    }
-
     "flatMap" >> {
       "returns empty when first param is not defined" in {
         Empty.flatMap((e: Int) => Just(e + 1)) ==== Empty

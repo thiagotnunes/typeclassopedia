@@ -21,12 +21,8 @@ sealed trait Maybe[+A] {
 }
 
 object Maybe {
-  def pure[A](a: A): Maybe[A] = {
-    implicitly[Applicative[Maybe]].pure(a)
-  }
-
-  def `return`[A](a: A): Maybe[A] = {
-    implicitly[Monad[Maybe]].`return`(a)
+  def point[A](a: A): Maybe[A] = {
+    implicitly[Applicative[Maybe]].point(a)
   }
 
   def zero[A: Monoid]: Maybe[A] = {
@@ -56,7 +52,7 @@ object Maybe {
       }
     }
 
-    override def pure[A](a: A): Maybe[A] = {
+    override def point[A](a: A): Maybe[A] = {
       if (a != null) {
         Just(a)
       } else {
@@ -66,7 +62,7 @@ object Maybe {
 
     override def ap[A, B](fa: Maybe[A])(f: Maybe[(A) => B]): Maybe[B] = {
       (fa, f) match {
-        case (Just(a), Just(fab)) => pure(fab(a))
+        case (Just(a), Just(fab)) => point(fab(a))
         case _ => Empty
       }
     }

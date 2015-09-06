@@ -5,12 +5,8 @@ import com.thiago.typeclassopedia.definitions.{Monad, Monoid}
 import scala.annotation.tailrec
 
 object SeqExtensions {
-  def pure[A](a: A): Seq[A] = {
-    implicitly[Monad[Seq]].pure(a)
-  }
-
-  def `return`[A](a: A): Seq[A] = {
-    implicitly[Monad[Seq]].`return`(a)
+  def point[A](a: A): Seq[A] = {
+    implicitly[Monad[Seq]].point(a)
   }
 
   def zero[A : Monoid]: Seq[A] = {
@@ -56,7 +52,7 @@ object SeqExtensions {
       map(fa, Seq.empty[B])
     }
 
-    override def pure[A](a: A): Seq[A] = Seq(a)
+    override def point[A](a: A): Seq[A] = Seq(a)
 
     override def ap[A, B](fa: Seq[A])(f: Seq[(A) => B]): Seq[B] = {
       @tailrec

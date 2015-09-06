@@ -16,13 +16,15 @@ class ValidationSpec extends Specification {
     }
   }
 
-  "applicative" >> {
-    "pure" >> {
+  "pointed" >> {
+    "point" >> {
       "returns success" in {
-        Validation.pure(1) ==== Success(1)
+        Validation.point(1) ==== Success(1)
       }
     }
+  }
 
+  "applicative" >> {
     "ap" >> {
       "returns failure when first param is failure" in {
         Failure("error").ap(Success((e: Int) => e + 1)) ==== Failure("error")
@@ -67,12 +69,6 @@ class ValidationSpec extends Specification {
   }
 
   "monad" >> {
-    "`return`" >> {
-      "returns success" in {
-        Validation.`return`(1) ==== Success(1)
-      }
-    }
-
     "flatMap" >> {
       "returns failure when flatMapping from failure" in {
         Failure("error").flatMap((e: Int) => Success(e + 1)) ==== Failure("error")

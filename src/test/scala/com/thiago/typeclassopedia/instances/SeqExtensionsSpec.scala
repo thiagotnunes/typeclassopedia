@@ -16,24 +16,26 @@ class SeqExtensionsSpec extends Specification {
     }
   }
 
-  "applicative" >> {
-    "pure" >> {
+  "pointed" >> {
+    "point" >> {
       "returns sequence with given element" in {
-        SeqExtensions.pure(1) ==== Seq(1)
+        SeqExtensions.point(1) ==== Seq(1)
+      }
+    }
+  }
+
+  "applicative" >> {
+    "ap" >> {
+      "returns sequence with each element applied to the given functions" in {
+        Seq(1, 2, 3).ap(Seq((e: Int) => e + 1, (e: Int) => e + 2, (e: Int) => e + 3)) ==== Seq(2, 3, 4, 3, 4, 5, 4, 5, 6)
       }
 
-      "ap" >> {
-        "returns sequence with each element applied to the given functions" in {
-          Seq(1, 2, 3).ap(Seq((e: Int) => e + 1, (e: Int) => e + 2, (e: Int) => e + 3)) ==== Seq(2, 3, 4, 3, 4, 5, 4, 5, 6)
-        }
+      "returns empty sequence when no functions are given" in {
+        Seq(1, 2, 3).ap(Seq.empty) ==== Seq.empty
+      }
 
-        "returns empty sequence when no functions are given" in {
-          Seq(1, 2, 3).ap(Seq.empty) ==== Seq.empty
-        }
-
-        "returns empty sequence when ap'ing from empty sequence" in {
-          Seq.empty.ap(Seq((e: Int) => e + 1, (e: Int) => e + 2, (e: Int) => e + 3)) ==== Seq.empty
-        }
+      "returns empty sequence when ap'ing from empty sequence" in {
+        Seq.empty.ap(Seq((e: Int) => e + 1, (e: Int) => e + 2, (e: Int) => e + 3)) ==== Seq.empty
       }
     }
   }
@@ -67,12 +69,6 @@ class SeqExtensionsSpec extends Specification {
   }
 
   "monad" >> {
-    "`return`" >> {
-      "returns sequence from given value" in {
-        SeqExtensions.`return`(1) ==== Seq(1)
-      }
-    }
-
     "flatMap" >> {
       "returns flattened sequence" in {
         Seq(1, 2, 3).bind(Seq(_, 1)) ==== Seq(1, 1, 2, 1, 3, 1)

@@ -21,12 +21,8 @@ sealed trait Validation[+E, +A] {
 }
 
 object Validation {
-  def pure[E, A](a: A): Validation[E, A] = {
-    implicitly[Applicative[({type lambda[A] = Validation[E, A]})#lambda]].pure(a)
-  }
-
-  def `return`[E, A](a: A): Validation[E, A] = {
-    implicitly[Monad[({type lambda[A] = Validation[E, A]})#lambda]].`return`(a)
+  def point[E, A](a: A): Validation[E, A] = {
+    implicitly[Applicative[({type lambda[A] = Validation[E, A]})#lambda]].point(a)
   }
 
   def zero[E : Semigroup, A : Monoid]: Validation[E, A] = {
@@ -56,11 +52,11 @@ object Validation {
         }
       }
 
-      override def pure[A](a: A): Validation[E, A] = Success(a)
+      override def point[A](a: A): Validation[E, A] = Success(a)
 
       override def ap[A, B](fa: Validation[E, A])(f: Validation[E, (A) => B]): Validation[E, B] = {
         (fa, f) match {
-          case (Success(a), Success(fab)) => pure(fab(a))
+          case (Success(a), Success(fab)) => point(fab(a))
           case (Success(_), Failure(error)) => Failure(error)
           case (Failure(error), _) => Failure(error)
         }
