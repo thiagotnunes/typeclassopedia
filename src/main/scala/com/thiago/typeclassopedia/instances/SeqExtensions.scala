@@ -1,6 +1,6 @@
 package com.thiago.typeclassopedia.instances
 
-import com.thiago.typeclassopedia.definitions.{Monoid, Monad}
+import com.thiago.typeclassopedia.definitions.{Monad, Monoid}
 
 import scala.annotation.tailrec
 
