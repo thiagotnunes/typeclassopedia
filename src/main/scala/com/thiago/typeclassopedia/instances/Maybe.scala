@@ -71,10 +71,6 @@ object Maybe {
       }
     }
 
-    override def `return`[A](a: A): Maybe[A] = {
-      pure(a)
-    }
-
     override def bind[A, B](fa: Maybe[A])(f: (A) => Maybe[B]): Maybe[B] = {
       fa match {
         case Just(a) => f(a)

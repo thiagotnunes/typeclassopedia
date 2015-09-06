@@ -66,8 +66,6 @@ object Validation {
         }
       }
 
-      override def `return`[A](a: A): Validation[E, A] = pure(a)
-
       override def bind[A, B](fa: Validation[E, A])(f: (A) => Validation[E, B]): Validation[E, B] = {
         fa match {
           case Success(a) => f(a)

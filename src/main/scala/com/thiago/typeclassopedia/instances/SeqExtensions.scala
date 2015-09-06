@@ -58,8 +58,6 @@ object SeqExtensions {
 
     override def pure[A](a: A): Seq[A] = Seq(a)
 
-    override def `return`[A](a: A): Seq[A] = pure(a)
-
     override def ap[A, B](fa: Seq[A])(f: Seq[(A) => B]): Seq[B] = {
       @tailrec
       def mapFunctions(f: Seq[(A) => B], fb: Seq[B]): Seq[B] = f match {
